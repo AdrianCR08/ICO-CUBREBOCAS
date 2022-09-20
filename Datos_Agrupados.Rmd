@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(readr)
+library(tidyverse)
+library(data.table)
+library(dplyr)
+library(ggridges)
+library(ggplot2)
+library(rvest)
+library(tidyr)
+library(purrr)
+library(stringr)
+library(visreg)
+library(scales)
+library(purrr)
+```
+
+```{r}
+df <- read.csv("FaceMask_ICO.csv")
+```
+
+7.-SEMESTRE - ¿Cuánto dinero gastas al mes por cubrebocas?
+
+```{r}
+plotd <- df %>%
+  group_by(SEMESTRE, GASTO_CUB) %>%
+  summarize(n = n()) %>%
+  mutate(pct = n / sum(n),
+         lbl = scales::percent(pct))
+plotd <- as.data.frame(plotd)
+```
+
+```{r}
+ggplot(plotd, aes(x = factor(SEMESTRE,
+                             labels = c("Primero", "Tercero", "Quinto", "Noveno")),
+                     y = n,
+                  fill = factor(GASTO_CUB,
+                                levels = c("1", "2", "3"),
+                                labels = c("$26- $50", "$51- $75", "$76- $100")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous() +
+  geom_text(aes(label = n),
+            size = 3,
+            position = position_stack(vjust = 0.5)) +
+  scale_fill_brewer(palette = "Blues") + 
+  labs(y = "Frecuencia",
+       fill = "Costo",
+       x = "Semestre",
+       title = "Inversión mensual en cubrebocas") +
+  theme_minimal()
+```
+
+8.-VACUNACION COVID (¿CUANTAS DOSIS) - ¿Consideras el uso de cubrebocas como una medida necesaria para disminuir
+
+```{r}
+plotd <- df %>%
+  group_by(NUM_DOSIS, CUB_NEC) %>%
+  summarize(n = n()) %>%
+  mutate(pct = n / sum(n),
+         lbl = scales::percent(pct))
+plotd <- as.data.frame(plotd)
+```
+
+```{r}
+ggplot(plotd, aes(x = factor(CUB_NEC,
+                             labels = c("Si", "No")),
+                     y = n,
+                  fill = factor(NUM_DOSIS,
+                                labels = c("2", "3")))) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous() +
+  geom_text(aes(label = n),
+            size = 3,
+            position = position_stack(vjust = 0.5)) +
+  scale_fill_brewer(palette = "Blues") + 
+  labs(y = "Frecuencia",
+       fill = "Dosis",
+       x = "",
+       title = "Uso del cubrebocas como medida necesaria",
+       subtitle = "Después de la aplicacion de vacunas ") +
+  theme_minimal()
+```
+
