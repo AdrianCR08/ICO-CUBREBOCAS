@@ -1,0 +1,105 @@
+---
+title: "Cubrebocas"
+author: "Alejandro Casiano Angeles"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr)
+library(tidyverse)
+library(data.table)
+library(dplyr)
+library(ggridges)
+library(ggplot2)
+library(rvest)
+library(tidyr)
+library(purrr)
+library(stringr)
+library(visreg)
+library(scales)
+
+```
+
+```{r}
+df <- read.csv("ICOCUBREBOCAS.csv", fileEncoding="latin1")
+
+```
+```{r}
+str(df)
+```
+
+```{r}
+head(df)
+```
+
+
+
+```{r}
+plotd <- df %>%
+  group_by(MUNICIPIO, NEC_AIRLIB) %>%
+  summarize(n = n()) %>%
+  mutate(pct = n / sum(n),
+         lbl = scales::percent(pct))
+
+```
+```{r}
+plotd <- as.data.frame(plotd)
+```
+
+
+
+```{r}
+ggplot(plotd, aes(x = factor(MUNICIPIO, labels = c("Acambay", "Aculco", "Atlacomulco", "El oro", "Ixtlahuaca", "Jilotepec", "Jiquipilco", "Jocotitlan", "Polotitlán", "Morelos", "San Felipe del Progreso", "San José del Rincón ", "Temascalcingo", "Tenancingo", "Valle de Bravo", "Villa de Allende", "Villa del Carbon")),
+                  y=n,
+                  fill = factor(NEC_AIRLIB,
+                  labels = c("Si","No"))))+
+                   geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous() +
+  geom_text(aes(label = n),
+            size = 3,
+            position = position_stack(vjust = 0.5)) +
+  scale_fill_manual(values = c("cadetblue2","cadetblue4")) + 
+  labs(y = "Frecuencia",
+       fill = "RESPUESTA",
+       x = "MUNICIPIO",
+       title = "Crees necesitar cubrebocas cuando estás al aire libre") +
+  theme_minimal()+
+  coord_flip()
+```
+
+
+```{r}
+plotd <- df %>%
+  group_by(SEMESTRE, CUB_PIEL) %>%
+  summarize(n = n()) %>%
+  mutate(pct = n / sum(n),
+         lbl = scales::percent(pct))
+```
+```{r}
+plotd <- as.data.frame(plotd)
+```
+
+```{r}
+ggplot(plotd, aes(x = factor(SEMESTRE,
+                             labels = c("PRIMERO", "TERCERO","QUINTO","NOVENO")),
+                     y=n,
+               fill = factor(CUB_PIEL,
+                             levels = c("1","2"),
+                                labels = c("Si", "No")))) + 
+ geom_bar(stat = "identity", position = "dodge")+ 
+  scale_y_continuous()+
+  geom_text(aes(label = n),
+            size = 3,
+            position = position_dodge2(width = 0.8, preserve = "single", padding = 2)) + scale_fill_brewer(palette = "Blues")+
+  labs(y = "Frecuencia",
+       fill = "RESPUESTA",x = "Semestre",
+       title = "El uso de cubrebocas afecta el cuidado de tu piel")+ 
+  theme_minimal()
+```
+
+
